@@ -9,5 +9,8 @@ export class Product {
   name: string;
 
   @Column('decimal')
-  price: number;
+  price: string;
+
+  @Column({ nullable: true })
+  image: string;
 }

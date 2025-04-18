@@ -14,9 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    console.log('Payload:', payload);
     if (!payload || !payload.sub || !payload.username) {
-      console.log('Invalid payload');
       return null;
     }
 
@@ -24,6 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       userId: payload.sub,
       username: payload.username,
       role: payload.role,
-    }; // You can add more user info if needed
+    };
   }
 }

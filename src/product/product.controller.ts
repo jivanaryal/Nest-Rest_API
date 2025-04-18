@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -15,15 +17,32 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/roles.enum';
-@UseGuards(JwtAuthGuard, RolesGuard) // Protect all routes in this controller
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
+  // Create product with image upload
   @Post()
   @Roles(Role.Admin)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createProductDto: CreateProductDto,
+  ) {
+    const uploadResponse = await this.cloudinaryService.uploadImage(file);
+    const imageUrl = (uploadResponse as any).url;
+
+    return this.productService.create({
+      ...createProductDto,
+      image: imageUrl,
+    });
   }
 
   @Get()

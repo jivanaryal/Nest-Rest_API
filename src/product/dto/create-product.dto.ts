@@ -1,11 +1,12 @@
 // src/product/dto/create-product.dto.ts
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsNumber()
-  price: number;
+  price: string;
+
+  image?: string;
 }
